@@ -1,4 +1,4 @@
-import { TooManyRequestsException } from "@nestjs/common";
+import { HttpException } from "@nestjs/common";
 import { TelegramBotService } from "../telegram-bot.service";
 import { TelegramRepository } from "../telegram.repository";
 
@@ -13,8 +13,11 @@ describe("TelegramBotService", () => {
     const service = new TelegramBotService(repository);
 
     await expect(service.verifyUser(123456789, "WRONG1")).resolves.toBe(false);
-    await expect(service.verifyUser(123456789, "A1B2C3")).rejects.toThrow(
-      TooManyRequestsException,
+    await expect(service.verifyUser(123456789, "A1B2C3")).rejects.toMatchObject(
+      new HttpException(
+        "Too many invalid verification attempts. Try again later.",
+        429,
+      ),
     );
     expect(repository.verifyVerificationCode).toHaveBeenCalledWith(
       123456789,

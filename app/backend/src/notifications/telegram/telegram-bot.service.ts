@@ -1,9 +1,10 @@
 import {
   Injectable,
+  HttpException,
+  HttpStatus,
   Logger,
   OnModuleInit,
   OnModuleDestroy,
-  TooManyRequestsException,
 } from "@nestjs/common";
 import { randomInt } from "node:crypto";
 import { Context, Telegraf } from "telegraf";
@@ -406,8 +407,9 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (result === "locked") {
-      throw new TooManyRequestsException(
+      throw new HttpException(
         "Too many invalid verification attempts. Try again later.",
+        HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 

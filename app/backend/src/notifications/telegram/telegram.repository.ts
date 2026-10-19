@@ -134,10 +134,12 @@ export class TelegramRepository {
     telegramId: number,
     verificationCode: string,
   ): Promise<"verified" | "invalid" | "expired" | "locked"> {
-    const { data, error } = await this.supabase.rpc("verify_telegram_link", {
-      p_telegram_id: telegramId,
-      p_verification_code: verificationCode,
-    });
+    const { data, error } = await this.supabase
+      .getClient()
+      .rpc("verify_telegram_link", {
+        p_telegram_id: telegramId,
+        p_verification_code: verificationCode,
+      });
 
     if (error) {
       this.logger.error(
