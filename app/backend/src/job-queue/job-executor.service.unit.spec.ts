@@ -24,6 +24,10 @@ describe('JobExecutor', () => {
   let cancellationStore: jest.Mocked<CancellationStore>;
   let metrics: jest.Mocked<JobQueueMetricsService>;
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   beforeEach(async () => {
     // Create mock implementations
     const mockRepository = {
@@ -361,6 +365,7 @@ describe('JobExecutor', () => {
       repository.updateJobStatus.mockResolvedValue();
 
       const beforeExecution = Date.now();
+      jest.spyOn(Date, 'now').mockReturnValue(beforeExecution);
 
       // Act
       await executor.processDueJobs();
@@ -399,6 +404,7 @@ describe('JobExecutor', () => {
       repository.updateJobStatus.mockResolvedValue();
 
       const beforeExecution = Date.now();
+      jest.spyOn(Date, 'now').mockReturnValue(beforeExecution);
 
       // Act
       await executor.processDueJobs();
@@ -603,6 +609,7 @@ describe('JobExecutor', () => {
       repository.updateJobStatus.mockResolvedValue();
 
       const beforeExecution = Date.now();
+      jest.spyOn(Date, 'now').mockReturnValue(beforeExecution);
 
       // Act
       await executor.processDueJobs();
@@ -852,6 +859,7 @@ describe('JobExecutor', () => {
       repository.updateJobStatus.mockResolvedValue();
 
       const beforeExecution = Date.now();
+      jest.spyOn(Date, 'now').mockReturnValue(beforeExecution);
 
       // Act
       await executor.processDueJobs();
