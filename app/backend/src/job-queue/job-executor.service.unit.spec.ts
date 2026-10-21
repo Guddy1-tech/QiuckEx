@@ -404,7 +404,6 @@ describe('JobExecutor', () => {
       repository.updateJobStatus.mockResolvedValue();
 
       const beforeExecution = Date.now();
-      jest.spyOn(Date, 'now').mockReturnValue(beforeExecution);
 
       // Act
       await executor.processDueJobs();
@@ -951,6 +950,7 @@ describe('JobExecutor', () => {
       const warnSpy = jest.spyOn(executor['logger'], 'warn');
 
       const beforeExecution = Date.now();
+      jest.spyOn(Date, 'now').mockReturnValue(beforeExecution);
 
       // Act
       await executor.processDueJobs();
