@@ -1,7 +1,7 @@
 ALTER TABLE telegram_user_mappings
-  ADD COLUMN verification_expires_at TIMESTAMPTZ,
-  ADD COLUMN verification_attempts INTEGER NOT NULL DEFAULT 0,
-  ADD COLUMN verification_locked_until TIMESTAMPTZ;
+  ADD COLUMN IF NOT EXISTS verification_expires_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS verification_attempts INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS verification_locked_until TIMESTAMPTZ;
 
 CREATE OR REPLACE FUNCTION verify_telegram_link(
   p_telegram_id BIGINT,
@@ -67,6 +67,20 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION verify_telegram_link(BIGINT, TEXT) FROM PUBLIC;
-REVOKE ALL ON FUNCTION verify_telegram_link(BIGINT, TEXT) FROM anon, authenticated;
-GRANT EXECUTE ON FUNCTION verify_telegram_link(BIGINT, TEXT) TO service_role;
+REVOKE ALL ON FUNCTION public.verify_telegram_link(BIGINT, TEXT) FROM PUBLIC;
+
+DO $$
+DECLARE
+  role_name text;
+BEGIN
+  FOREACH role_name IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+      EXECUTE format('REVOKE ALL ON FUNCTION public.verify_telegram_link(BIGINT, TEXT) FROM %I', role_name);
+    END IF;
+  END LOOP;
+
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+    EXECUTE 'GRANT EXECUTE ON FUNCTION public.verify_telegram_link(BIGINT, TEXT) TO service_role';
+  END IF;
+END
+$$;
